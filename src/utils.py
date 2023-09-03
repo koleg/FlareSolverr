@@ -30,9 +30,11 @@ def get_flaresolverr_version() -> str:
     if FLARESOLVERR_VERSION is not None:
         return FLARESOLVERR_VERSION
 
-    package_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'package.json')
+    package_path = os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), os.pardir, 'package.json')
     if not os.path.isfile(package_path):
-        package_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'package.json')
+        package_path = os.path.join(os.path.dirname(
+            os.path.abspath(__file__)), 'package.json')
     with open(package_path) as f:
         FLARESOLVERR_VERSION = json.loads(f.read())['version']
         return FLARESOLVERR_VERSION
@@ -118,6 +120,9 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
 
     # undetected_chromedriver
     options = uc.ChromeOptions()
+    # set language to English
+    options.add_argument('--lang=en_US')
+
     options.add_argument('--no-sandbox')
     options.add_argument('--window-size=1920,1080')
     # todo: this param shows a warning in chrome head-full
@@ -139,7 +144,8 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
     proxy_extension_dir = None
     if proxy and all(key in proxy for key in ['url', 'username', 'password']):
         proxy_extension_dir = create_proxy_extension(proxy)
-        options.add_argument("--load-extension=%s" % os.path.abspath(proxy_extension_dir))
+        options.add_argument("--load-extension=%s" %
+                             os.path.abspath(proxy_extension_dir))
     elif proxy and 'url' in proxy:
         proxy_url = proxy['url']
         logging.debug("Using webdriver proxy: %s", proxy_url)
@@ -180,7 +186,8 @@ def get_webdriver(proxy: dict = None) -> WebDriver:
 
     # save the patched driver to avoid re-downloads
     if driver_exe_path is None:
-        PATCHED_DRIVER_PATH = os.path.join(driver.patcher.data_path, driver.patcher.exe_name)
+        PATCHED_DRIVER_PATH = os.path.join(
+            driver.patcher.data_path, driver.patcher.exe_name)
         if PATCHED_DRIVER_PATH != driver.patcher.executable_path:
             shutil.copy(driver.patcher.executable_path, PATCHED_DRIVER_PATH)
 
@@ -204,7 +211,8 @@ def get_chrome_exe_path() -> str:
     if CHROME_EXE_PATH is not None:
         return CHROME_EXE_PATH
     # linux pyinstaller bundle
-    chrome_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chrome', "chrome")
+    chrome_path = os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), 'chrome', "chrome")
     if os.path.exists(chrome_path):
         if not os.access(chrome_path, os.X_OK):
             raise Exception(f'Chrome binary "{chrome_path}" is not executable. '
@@ -212,7 +220,8 @@ def get_chrome_exe_path() -> str:
         CHROME_EXE_PATH = chrome_path
         return CHROME_EXE_PATH
     # windows pyinstaller bundle
-    chrome_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chrome', "chrome.exe")
+    chrome_path = os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), 'chrome', "chrome.exe")
     if os.path.exists(chrome_path):
         CHROME_EXE_PATH = chrome_path
         return CHROME_EXE_PATH
@@ -229,7 +238,8 @@ def get_chrome_major_version() -> str:
     if os.name == 'nt':
         # Example: '104.0.5112.79'
         try:
-            complete_version = extract_version_nt_executable(get_chrome_exe_path())
+            complete_version = extract_version_nt_executable(
+                get_chrome_exe_path())
         except Exception:
             try:
                 complete_version = extract_version_nt_registry()
@@ -273,7 +283,8 @@ def extract_version_nt_registry() -> str:
 def extract_version_nt_folder() -> str:
     # Check if the Chrome folder exists in the x32 or x64 Program Files folders.
     for i in range(2):
-        path = 'C:\\Program Files' + (' (x86)' if i else '') + '\\Google\\Chrome\\Application'
+        path = 'C:\\Program Files' + \
+            (' (x86)' if i else '') + '\\Google\\Chrome\\Application'
         if os.path.isdir(path):
             paths = [f.path for f in os.scandir(path) if f.is_dir()]
             for path in paths:
